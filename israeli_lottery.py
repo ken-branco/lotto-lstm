@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.layers import LSTM, Dense, Bidirectional, Dropout
 
 from tensorflow import keras
@@ -9,7 +9,8 @@ from tensorflow.keras.optimizers import Adam
 from sklearn.preprocessing import StandardScaler
 
 
-df = pd.read_csv("IsraeliLottery_1012.csv")
+# df = pd.read_csv("IsraeliLottery_1012.csv")
+df = pd.read_csv("draw_results.csv")
 
 df.head()
 
@@ -19,7 +20,8 @@ df.info()
 
 df.describe()
 
-df.drop(['Game', 'Date'], axis=1, inplace=True)
+# df.drop(['Game', 'Date'], axis=1, inplace=True)
+df.drop(['date', 'when'], axis=1, inplace=True)
 
 df.head()
 
@@ -66,36 +68,53 @@ batch_size = 100
 
 # Initialising the RNN
 model = Sequential()
-# Adding the input layer and the LSTM layer
-model.add(Bidirectional(LSTM(240,
-                        input_shape = (window_length, number_of_features),
-                        return_sequences = True)))
-# Adding a first Dropout layer
-model.add(Dropout(0.2))
-# Adding a second LSTM layer
-model.add(Bidirectional(LSTM(240,
-                        input_shape = (window_length, number_of_features),
-                        return_sequences = True)))
-# Adding a second Dropout layer
-model.add(Dropout(0.2))
-# Adding a third LSTM layer
-model.add(Bidirectional(LSTM(240,
-                        input_shape = (window_length, number_of_features),
-                        return_sequences = True)))
-# Adding a fourth LSTM layer
-model.add(Bidirectional(LSTM(240,
-                        input_shape = (window_length, number_of_features),
-                        return_sequences = False)))
-# Adding a fourth Dropout layer
-model.add(Dropout(0.2))
-# Adding the first output layer
-model.add(Dense(59))
-# Adding the last output layer
-model.add(Dense(number_of_features))
 
+# Load model architecture
+with open('my_lstm_model.json', 'r') as f:
+    model_json = f.read()
+model = model_from_json(model_json)
+
+# # Load model weights
+model.load_weights('my_lstm_model.weights.h5')
+
+
+# Adding the input layer and the LSTM layer
+# model.add(Bidirectional(LSTM(240,
+#                         input_shape = (window_length, number_of_features),
+#                         return_sequences = True)))
+# Adding a first Dropout layer
+# model.add(Dropout(0.2))
+# Adding a second LSTM layer
+# model.add(Bidirectional(LSTM(240,
+#                         input_shape = (window_length, number_of_features),
+#                         return_sequences = True)))
+# Adding a second Dropout layer
+# model.add(Dropout(0.2))
+# Adding a third LSTM layer
+# model.add(Bidirectional(LSTM(240,
+#                         input_shape = (window_length, number_of_features),
+#                        return_sequences = True)))
+# # Adding a fourth LSTM layer
+# model.add(Bidirectional(LSTM(240,
+#                         input_shape = (window_length, number_of_features),
+#                         return_sequences = False)))
+# Adding a fourth Dropout layer
+# model.add(Dropout(0.2))
+# Adding the first output layer
+# model.add(Dense(59))
+# Adding the last output layer
+# model.add(Dense(number_of_features))
 
 model.compile(optimizer=Adam(learning_rate=0.0001), loss ='mse', metrics=['accuracy'])
-model.fit(x=X, y=y, batch_size=100, epochs=1000, verbose=2)
+# model.fit(x=X, y=y, batch_size=100, epochs=500, verbose=2)
+model.fit(x=X, y=y, batch_size=100, epochs=600, initial_epoch=500, verbose=2)
+
+# Save model architecture
+with open('my_lstm_model.json', 'w') as f:
+   f.write(model.to_json())
+
+# Save model weights
+model.save_weights('my_lstm_model.weights.h5', overwrite=True)
 
 to_predict = df.tail(8)
 to_predict.drop([to_predict.index[-1]],axis=0, inplace=True)
@@ -114,6 +133,7 @@ print("The predicted numbers in the last lottery game are:", scaler.inverse_tran
 prediction = df.tail(1)
 prediction = np.array(prediction)
 print("The actual numbers in the last lottery game were:", prediction[0])
+# print('foo')
 
 
 
