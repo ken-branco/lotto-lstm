@@ -107,22 +107,38 @@ model.load_weights('my_lstm_model.weights.h5')
 
 model.compile(optimizer=Adam(learning_rate=0.0001), loss ='mse', metrics=['accuracy'])
 # model.fit(x=X, y=y, batch_size=100, epochs=500, verbose=2)
-model.fit(x=X, y=y, batch_size=100, epochs=600, initial_epoch=500, verbose=2)
+# model.fit(x=X, y=y, batch_size=100, epochs=1100, initial_epoch=1000, verbose=2)
 
 # Save model architecture
-with open('my_lstm_model.json', 'w') as f:
-   f.write(model.to_json())
+# with open('my_lstm_model.json', 'w') as f:
+#    f.write(model.to_json())
 
 # Save model weights
-model.save_weights('my_lstm_model.weights.h5', overwrite=True)
+# model.save_weights('my_lstm_model.weights.h5', overwrite=True)
 
-to_predict = df.tail(8)
-to_predict.drop([to_predict.index[-1]],axis=0, inplace=True)
-print(to_predict)
+# winners = []
+
+# for i in range(1, len(df) - 5):  # adjust the range to avoid indexing errors
+#     to_predict = df.iloc[-7 - i:-i]
+#     to_predict = np.array(to_predict)
+#     scaled_to_predict = scaler.transform(to_predict)
+#     y_pred = model.predict(np.array([scaled_to_predict]))
+#     prediction = scaler.inverse_transform(y_pred).astype(int)[0]
+#     print("The predicted numbers in the last lottery game are:", prediction)
+#     actual = df.iloc[-i]
+#     actual = np.array(actual)
+#     print("The actual numbers in the last lottery game were:", actual)
+#     if np.array_equal(prediction, actual):
+#         winners.append(prediction)
+#     # print(window)
+
+to_predict = df.tail(7)
+# to_predict.drop([to_predict.index[-1]],axis=0, inplace=True)
+# print(to_predict)
 
 
 to_predict = np.array(to_predict)
-print(to_predict)
+# print(to_predict)
 
 
 scaled_to_predict = scaler.transform(to_predict)
